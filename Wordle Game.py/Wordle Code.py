@@ -62,7 +62,6 @@ while True:
      else:
           print(u_word[1])   
 
-
      if u_word[2] == word[2]:
          print(bcolors.OKGREEN + u_word[2] + bcolors.ENDC)  
      elif u_word[2] == word[0]:
