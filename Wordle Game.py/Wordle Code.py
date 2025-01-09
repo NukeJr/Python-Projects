@@ -111,7 +111,7 @@ while True:
  if guesses != 1:
   guesses -= 1
  else: 
-    print("You have no guesses remaining.")
+    print(f"You have no guesses remaining. The word is:",word)
     break
  print (f"You have",guesses,"guesses left.")
  continue 
