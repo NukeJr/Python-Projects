@@ -1,6 +1,20 @@
+import os
 import random
 
 guesses = 6
+
+# Read current streak from a file
+def read_win_streak():
+    try:
+        current_dir = os.path.dirname(__file__)
+        file_path = os.path.join(current_dir, "Wordle.py")
+        with open(file_path) as file:
+            return int(file.read().strip())
+    except FileNotFoundError:
+        return 0 
+
+def write_win_streak():
+    print('write_win_streak')
 
 class bcolors:
     HEADER = '\033[95m'
@@ -13,118 +27,77 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-print ("Welcome To Wordle!")
+print('Welcome To Wordle!')
 
+# Load 5-letter words from the file
+file = "fiveLetterWords.txt"
+with open(file, 'r') as f:
+    words = [line.rstrip() for line in f if len(line.rstrip()) == 5]
 
-# Making a list of words that can be guessed.
-file = ("fiveLetterWords.txt")
-open(file)
-for line in file:
-   lines = line.rstrip()
-   if len(lines) == 5:
-      random.choice(lines)
+random_word = random.choice(words)  # Random word guess
 
-      
+# List to keep track of previous guesses
+previous_guesses = []
 
-# Choosing a random word from list.
-word = random.choice(list)
-# print(word)
+def color_word(word, random_word):
+    """
+    Function to apply coloring to the word based on feedback from the random_word.
+    Returns the word as a string with color codes.
+    """
+    word_used = [False] * 5  # Track Letters already matched in random_word
+    guess_used = [False] * 5  # Track Letters already matched in the guess
+    colored_word = []
 
-while True:
+    # FIRST PASS: Green feedback for exact matches (correct position)
+    for i in range(5):
+        if word[i] == random_word[i]:
+            colored_word.append(bcolors.OKGREEN + word[i] + bcolors.ENDC)
+            word_used[i] = True
+            guess_used[i] = True
+        else:
+            colored_word.append(word[i])
 
- try:
+    # SECOND PASS: Yellow feedback for wrong position (exists in word but wrong position)
+    for i in range(5):
+        if not guess_used[i]:  # If this letter hasn't been used already
+            for j in range(5):
+                if not word_used[j] and word[i] == random_word[j]:  # Check if the letter exists in random_word but in the wrong position
+                    colored_word[i] = bcolors.WARNING + word[i] + bcolors.ENDC
+                    word_used[j] = True
+                    break
 
-     # Asking for User's 5-letter word.
-     answer = input("Please guess a 5-letter word: ")    # Seeing if any letters are right or wrong.
+    return ''.join(colored_word)
 
-     # Lowercasing answer
-     u_word = answer.lower()
-     
-     if u_word == word:
-       print("Great Job! You guessed the word:", word)
-       break
+while guesses > 0:
+    try:
+        answer = input('Please guess a 5-letter word: ').lower()
 
-     if u_word[0] == word[0]:
-        print(bcolors.OKGREEN + u_word[0] + bcolors.ENDC)   
-     elif u_word[0] == word[1]:
-             print(bcolors.WARNING + u_word[0] + bcolors.ENDC)
-             continue 
-     elif u_word[0] == word[2]:
-             print(bcolors.WARNING + u_word[0] + bcolors.ENDC)
-             continue  
-     elif u_word[0] == word[3]:
-             print(bcolors.WARNING + u_word[0] + bcolors.ENDC) 
-             continue 
-     elif u_word[0] == word[4]:
-             print(bcolors.WARNING + u_word[0] + bcolors.ENDC)
-             continue
-     else:
-             print(u_word[0])  
+        if len(answer) != 5:
+            print("Make sure your word is 5 characters. ")
+            continue
 
-     if u_word[1] == word[1]:
-         print(bcolors.OKGREEN + u_word[1] + bcolors.ENDC) 
-     elif u_word[1] == word[0]:
-             print(bcolors.WARNING + u_word[1] + bcolors.ENDC) 
-     elif u_word[1] == word[2]:
-             print(bcolors.WARNING + u_word[1] + bcolors.ENDC) 
-     elif u_word[1] == word[3]:
-             print(bcolors.WARNING + u_word[1] + bcolors.ENDC) 
-     elif u_word[1] == word[4]:
-             print(bcolors.WARNING + u_word[1] + bcolors.ENDC) 
-     else:
-          print(u_word[1])   
+        # Add the current guess to the previous guesses list
+        previous_guesses.append(answer)
 
-     if u_word[2] == word[2]:
-         print(bcolors.OKGREEN + u_word[2] + bcolors.ENDC)  
-     elif u_word[2] == word[0]:
-             print(bcolors.WARNING + u_word[2] + bcolors.ENDC) 
-     elif u_word[2] == word[1]:
-              print(bcolors.WARNING + u_word[2] + bcolors.ENDC) 
-     elif u_word[2] == word[3]:
-             print(bcolors.WARNING + u_word[2] + bcolors.ENDC) 
-     elif u_word[2] == word[4]:
-             print(bcolors.WARNING + u_word[2] + bcolors.ENDC) 
-     else:
-             print(u_word[2])      
+        # Print the previous guesses with colored output, except for the first guess
+        if len(previous_guesses) > 1:
+            print("\nPrevious guesses:")
+            for guess in previous_guesses[:-1]:  # All except the current guess
+                print(color_word(guess, random_word))
 
-     if u_word[3] == word[3]:
-         print(bcolors.OKGREEN + u_word[3] + bcolors.ENDC) 
-     elif u_word[3] == word[0]:
-             print(bcolors.WARNING + u_word[3] + bcolors.ENDC) 
-     elif u_word[3] == word[1]:
-             print(bcolors.WARNING + u_word[3] + bcolors.ENDC) 
-     elif u_word[3] == word[2]:
-             print(bcolors.WARNING + u_word[3] + bcolors.ENDC) 
-     elif u_word[3] == word[4]:
-             print(bcolors.WARNING + u_word[3] + bcolors.ENDC) 
-     else:
-             print(u_word[3])    
+        # Color the current guess and print it
+        print(color_word(answer, random_word))
 
-     if u_word[4] == word[4]:
-         print(bcolors.OKGREEN + u_word[4] + bcolors.ENDC)  
-     elif u_word[4] == word[0]:
-             print(bcolors.WARNING + u_word[4] + bcolors.ENDC) 
-     elif u_word[4] == word[1]:
-             print(bcolors.WARNING + u_word[4] + bcolors.ENDC) 
-     elif u_word[4] == word[2]:
-             print(bcolors.WARNING + u_word[4] + bcolors.ENDC) 
-     elif u_word[4] == word[3]:
-             print(bcolors.WARNING + u_word[4] + bcolors.ENDC) 
-     else:
-             print(u_word[4])
-  
+        if answer == random_word:
+            print("Great Job! You guessed the word:", random_word)
+            break
 
- 
-  # Making sure the code dosen't blow up if anything in the code is wrong
- except ValueError:
-     print("Make sure your word is 5-digits.")    
+        guesses -= 1
+        # Now display the remaining guesses after feedback
+        print(f"You have {guesses} guesses left.")
 
-  #for u_word in range(len(word)):
-  #   print(u_word,word[u_word])
- if guesses != 1:
-  guesses -= 1
- else: 
-    print(f"You have no guesses remaining. The word is:",word)
-    break
- print (f"You have",guesses,"guesses left.")
- continue
+        if guesses == 0:
+            print(f"You have no guesses remaining. The word was: {random_word}")
+
+    except ValueError:
+        print("Please enter a valid word.")
